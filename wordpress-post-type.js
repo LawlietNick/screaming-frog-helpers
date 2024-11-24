@@ -66,6 +66,11 @@ function getWordPressPostType() {
     }
   }
 
+  // Page
+  else if (Array.from(bodyClasses).some(cls => cls.startsWith('page-id-'))) { 
+    postType = "page";
+  }
+
   // Fallback
   if (!postType) {
     postType = Array.from(bodyClasses).join(' '); 
