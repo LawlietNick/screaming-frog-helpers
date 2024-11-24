@@ -71,7 +71,7 @@ function getWordPressPostType() {
     postType = Array.from(bodyClasses).join(' '); 
   }
 
-  return seoSpider.data(postType);
+  return postType;
 }
 
-getWordPressPostType();
+seoSpider.data(getWordPressPostType(););
