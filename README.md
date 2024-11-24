@@ -18,7 +18,8 @@ This repository contains a collection of helpful JavaScript code snippets to be 
 6. Paste the code into the code editor.
 7. Test it with a single url using the JavaScript Tester on the right
 8. Add Snippet to User Library for the later use. You can name the snippet "Wordpress Post Type"
-9. CLick OK
+9. Click OK
+10. Run your Crawl
 
 **Supported Post Types:**
 
@@ -49,7 +50,7 @@ This repository contains a collection of helpful JavaScript code snippets to be 
 5. Paste the code into the code editor.
 6. Test it with a single url using the JavaScript Tester on the right
 7. Add Snippet to User Library for the later use. You can name the snippet Unique Word Count"
-8. CLick OK
+8. Click OK
 9. Run your crawl.
 
 **Important notes:**
