@@ -13,7 +13,7 @@ function uniqueWordsInMainContent() {
     let text = element.textContent.trim().toLowerCase();
 
     // Remove punctuation (optional):
-    text = text.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?"]/g, ""); 
+    text = text.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?"']/g, ""); 
 
     const normalizedText = text.replace(/\s+/g, ' ');
 
@@ -24,5 +24,5 @@ function uniqueWordsInMainContent() {
     });
   });
 
-	return seoSpider.data(words.size);
+  return seoSpider.data(words.size); 
 }
