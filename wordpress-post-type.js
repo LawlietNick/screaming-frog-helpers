@@ -74,4 +74,4 @@ function getWordPressPostType() {
   return postType;
 }
 
-seoSpider.data( getWordPressPostType() );
+return seoSpider.data(getWordPressPostType());
