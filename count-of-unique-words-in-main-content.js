@@ -8,7 +8,7 @@ function uniqueWordsInMainContent() {
     const mainContent = document.querySelector('main#main');
 
     if (!mainContent) {
-      return seoSpider.data('Main element not found!'); 
+      return 'Main element not found!'; 
     }
 
     const elements = mainContent.querySelectorAll('h1, h2, h3, h4, h5, h6, span, p');
@@ -29,11 +29,11 @@ function uniqueWordsInMainContent() {
       });
     });
 
-    return seoSpider.data(words.size); 
+    return words.size; 
 
   } catch (error) {
-    return seoSpider.error(error);
+    return error;
   }
 }
 
-uniqueWordsInMainContent();
+return seoSpider.data(uniqueWordsInMainContent()); 
