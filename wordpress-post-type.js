@@ -1,3 +1,7 @@
+// Identifies the WordPress post type of a page based on its body classes.
+// This script is designed to be used with Screaming Frog's Custom Javascript Extraction 
+// feature to determine the post type of each page crawled.
+
 function getWordPressPostType() {
   const bodyClasses = document.body.classList;
   let postType = ""; 
@@ -69,3 +73,5 @@ function getWordPressPostType() {
 
   return seoSpider.data(postType);
 }
+
+getWordPressPostType();
