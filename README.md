@@ -35,6 +35,29 @@ This repository contains a collection of helpful JavaScript code snippets to be 
 * The code might need adjustments depending on your WordPress theme and any plugins you're using.
 * Always test the code thoroughly on your WordPress site to ensure it's working correctly.
 
+### Count Unique Words in Main Content
+
+* **Filename:** `count-of-unique-words-in-main-content.js` 
+* **Description:** This script counts the unique words within the `<main id="main">` tag of an HTML document. This is helpful for analyzing the vocabulary and content within the main content area of a web page. It can be useful for tasks like content analysis, keyword research, and readability assessment.
+
+**How to use:**
+
+1. Copy the code from `count-of-unique-words-in-main-content.js`.
+2. In Screaming Frog, go to "Configuration" -> "Custom" -> "Custom JavaScript"
+3. Click "Add"
+4. Click "JS" -icon on the right
+5. Paste the code into the code editor.
+6. Test it with a single url using the JavaScript Tester on the right
+7. Add Snippet to User Library for the later use. You can name the snippet Unique Word Count"
+8. CLick OK
+9. Run your crawl.
+
+**Important notes:**
+
+* The script removes punctuation by default. If you want to include punctuation in the word count, comment out the line that removes punctuation.
+* The script is designed to work with pages that have a `<main>` tag with the ID "main." If your page structure is different, you may need to adjust the CSS path accordingly.
+
+
 ## Contributing
 
 Feel free to contribute to this repository by:
