@@ -12,14 +12,13 @@ This repository contains a collection of helpful JavaScript code snippets to be 
 **How to use:**
 
 1. Copy the code from `wordpress-post-type.js`.
-2. In Screaming Frog, go to "Configuration" -> "Custom" -> "Extraction."
-3. Click "Add" to create a new custom extraction.
-4. Choose "JavaScript" as the extractor type.
-5. Paste the code into the code editor.
-6. Configure the extraction:
-    * **Extraction type:** Select an appropriate extraction type (e.g., "Extract Text").
-    * **CSS Path:** Enter "body" as the CSS Path.
-    * **Give it a name:** Provide a descriptive name (e.g., "WordPress Post Type").
+2. In Screaming Frog, go to "Configuration" -> "Custom" -> "Custom JavaScript"
+3. Click "Add"
+4. Click "JS" -icon on the right
+6. Paste the code into the code editor.
+7. Test it with a single url using the JavaScript Tester on the right
+8. Add Snippet to User Library for the later use. You can name the snippet "Wordpress Post Type"
+9. CLick OK
 
 **Supported Post Types:**
 
@@ -33,7 +32,6 @@ This repository contains a collection of helpful JavaScript code snippets to be 
 
 **Important Notes:**
 
-* This script is designed for relatively recent versions of WordPress that use standard body classes.
 * The code might need adjustments depending on your WordPress theme and any plugins you're using.
 * Always test the code thoroughly on your WordPress site to ensure it's working correctly.
 
@@ -49,5 +47,4 @@ Feel free to contribute to this repository by:
 Any contributions are welcome!
 
 ## License
-
-[Specify your preferred license here, e.g., MIT License]
+GPL-3.0
