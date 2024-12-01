@@ -63,16 +63,21 @@ function getWordPressPostType() {
       postType = "date archive";
     } else if (bodyClasses.contains('tax')) { 
       postType = "taxonomy archive";
-    }
+    } else { 
+        const customArchievePostTypeRegex = /post-type-archive-([^ ]+)/;
+        let match = customArchievePostTypeRegex.exec(document.body.className);
+        if (match && match[1]) {
+            postType = match[1];
+        }
+      }
   }
-
   // Page
   else if (Array.from(bodyClasses).some(cls => cls.startsWith('page-id-'))) { 
     postType = "page";
   }
 
   // Fallback
-  if (!postType) {
+  else if (!postType) {
     postType = Array.from(bodyClasses).join(' '); 
   }
 
