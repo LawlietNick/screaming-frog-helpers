@@ -67,7 +67,7 @@ function getWordPressPostType() {
         const customArchievePostTypeRegex = /post-type-archive-([^ ]+)/;
         let match = customArchievePostTypeRegex.exec(document.body.className);
         if (match && match[1]) {
-            postType = match[1] + ' archive';;
+            postType = match[1] + ' archive';
         }
       }
   }
