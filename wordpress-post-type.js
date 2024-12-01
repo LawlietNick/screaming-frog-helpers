@@ -45,10 +45,10 @@ function getWordPressPostType() {
     } else { 
       const customPostTypeRegex = /single-([^ ]+)/;
       let match = customPostTypeRegex.exec(document.body.className);
-      if (match && match[1]) {
-        postType = match[1];
+        if (match && match[1]) {
+          postType = match[1];
+        }
       }
-    }
   } 
 
   // Archive Pages
@@ -67,7 +67,7 @@ function getWordPressPostType() {
         const customArchievePostTypeRegex = /post-type-archive-([^ ]+)/;
         let match = customArchievePostTypeRegex.exec(document.body.className);
         if (match && match[1]) {
-            postType = match[1];
+            postType = match[1] + ' archive';;
         }
       }
   }
