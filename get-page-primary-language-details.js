@@ -1,12 +1,12 @@
 /**
  * Retrieves details about alternate language links and the current page.
  *
- * @returns {Promise<object>} A Promise that resolves to an object containing:
- *   - "primary_url": The href of the first alternate link (if any).
- *   - "primary_path": The path part of the primary URL.
- *   - "current_language": The language code of the current page (based on hreflang).
- *   - "amount_of_translations": The number of alternate language links found.
- *   - "primary_first_folder": The first folder in the primary path.
+ * @returns {Promise<array>} A Promise that resolves to an array of values:
+ *      - [0]: first_alternate_href
+ *      - [1]: primary_page_path
+ *      - [2]: current_page_language
+ *      - [3]: languages_count
+ *      - [4]: primary_first_folder
  */
 
 function getAlternateHrefDetails() {
@@ -45,14 +45,14 @@ function getAlternateHrefDetails() {
         }
       }
 
-      // Resolve the promise with the data
-      resolve({
-        "primary_url": first_alternate_href,
-        "primary_path": primary_page_path,
-        "current_language": current_page_language,
-        "amount_of_translations": languages_count,
-        "primary_first_folder": primary_first_folder
-      });
+      // Resolve the promise with an array of values
+      resolve([
+        first_alternate_href,
+        primary_page_path,
+        current_page_language,
+        languages_count,
+        primary_first_folder
+      ]);
 
     } catch (error) {
       reject(error); // Reject the promise if an error occurs
@@ -62,5 +62,5 @@ function getAlternateHrefDetails() {
 
 // Execute request and handle results
 return getAlternateHrefDetails()
-  .then(embeddings => seoSpider.data(embeddings))
+  .then(data => seoSpider.data(data))
   .catch(error => seoSpider.error(error));
