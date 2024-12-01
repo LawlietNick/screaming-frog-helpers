@@ -12,40 +12,46 @@
 function getAlternateHrefDetails() {
   return new Promise((resolve, reject) => {
     try {
-      // Get all the link elements with rel="alternate"
-      const alternateLinks = document.querySelectorAll('link[rel="alternate"]');
+      if (typeof document === 'undefined' || typeof window === 'undefined') {
+        return reject(new Error('Not running in a browser environment'));
+      }
 
-      // Get the count of alternate links
+      const alternateLinks = document.querySelectorAll('link[rel="alternate"]');
       const languages_count = alternateLinks.length;
 
-      // Get the href of the first link (if any)
-      const first_alternate_href = languages_count > 0 ? alternateLinks[0].href : null;
+      if (languages_count === 0) {
+        return resolve([null, null, null, 0, null]);
+      }
 
-      // Extract the page path from the first href (default URL)
-      const primary_page_path = first_alternate_href ? new URL(first_alternate_href).pathname : null;
+      const first_alternate_href = alternateLinks[0]?.href || null;
+      let primary_page_path = null;
+      let primary_first_folder = null;
 
-      // Extract the first folder from the path
-      const primary_first_folder = primary_page_path
-        ? primary_page_path.split('/').filter(Boolean)[0] || null
-        : null;
+      try {
+        if (first_alternate_href) {
+          const url = new URL(first_alternate_href);
+          primary_page_path = url.pathname;
+          primary_first_folder = primary_page_path.split('/').filter(Boolean)[0] || null;
+        }
+      } catch (urlError) {
+        console.error('Invalid URL:', urlError);
+      }
 
-      // Get the canonical link's href
       const canonicalLink = document.querySelector('link[rel="canonical"]');
       const canonicalHref = canonicalLink ? canonicalLink.href : null;
 
-      // Get the current page language (checking against canonical link)
       let current_page_language = null;
+      const normalizeUrl = (url) => url?.replace(/\/$/, '').toLowerCase();
 
-      for (let i = 0; i < alternateLinks.length; i++) {
-        // Compare with canonical href if it exists, otherwise use window.location.href
-        const comparisonHref = canonicalHref || window.location.href;
-        if (alternateLinks[i].href === comparisonHref) {
-          current_page_language = alternateLinks[i].hreflang;
+      for (const link of alternateLinks) {
+        if (normalizeUrl(link.href) === normalizeUrl(canonicalHref || window.location.href)) {
+          current_page_language = link.hreflang;
           break;
         }
       }
 
-      // Resolve the promise with an array of values
+      current_page_language = current_page_language || "not-detected";
+
       resolve([
         first_alternate_href,
         primary_page_path,
@@ -55,7 +61,7 @@ function getAlternateHrefDetails() {
       ]);
 
     } catch (error) {
-      reject(error); // Reject the promise if an error occurs
+      reject(error);
     }
   });
 }
