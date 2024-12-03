@@ -5,13 +5,13 @@
 
 function uniqueWordsInMainContent() {
   try {
-    const mainContent = document.querySelector('main#main');
+    const mainContent = document.querySelector('main[role="main"]');
 
     if (!mainContent) {
       return 'Main element not found!'; 
     }
 
-    const elements = mainContent.querySelectorAll('h1, h2, h3, h4, h5, h6, span, p');
+    const elements = mainContent.querySelectorAll('h1, h2, h3, h4, h5, h6, span, p, a');
     const words = new Set();
 
     elements.forEach(element => {
@@ -36,4 +36,4 @@ function uniqueWordsInMainContent() {
   }
 }
 
-return seoSpider.data(uniqueWordsInMainContent()); 
+return seoSpider.data(uniqueWordsInMainContent());
