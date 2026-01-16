@@ -13,7 +13,6 @@ function extractFromDataLayer() {
         return null;
     }
     const combinedData = window.dataLayer.reduce((acc, obj) => (obj && typeof obj === 'object' ? {...acc, ...obj } : acc), {});
-    
     if (combinedData.primary_url && combinedData.current_language) {
         return {
             source: 'dataLayer',
@@ -36,12 +35,23 @@ function extractFromHreflang(lang) {
     
     if (link && link.href) {
         const url = new URL(link.href);
+        let pageTitle = null;
+        
+        // Find the canonical URL of the page
+        const canonicalLink = document.querySelector('link[rel="canonical"]');
+        const canonicalUrl = canonicalLink ? canonicalLink.href : null;
+        
+        // If the hreflang URL matches the canonical URL, use the current page's title.
+        if (canonicalUrl && link.href === canonicalUrl) {
+            pageTitle = document.title;
+        }
+        
         return {
             source: 'hreflang_fallback',
             url: link.href,
             path: url.pathname,
             title: null,
-            language: lang,
+            language: document.documentElement.lang || null,
             translations: translationCount > 0 ? translationCount : 1
         };
     }
@@ -63,8 +73,9 @@ function extractFromCurrentPage() {
     };
 }
 
+
 // =================================================================
-// --- MAIN CONTROLLER AND FORMATTER ---
+// --- MAIN CONTROLLER ---
 // =================================================================
 try {
     let resultObject = null;
@@ -78,18 +89,15 @@ try {
         resultObject = extractFromCurrentPage();
     }
 
-    // 2. Format the object into the desired string.
+    // 3. Return the object from the successful function directly.
+    // Screaming Frog will create a column for each key in the object.
     if (resultObject) {
-        const orderedKeys = ['source', 'url', 'path', 'title', 'language', 'translations'];
-        const valuesArray = orderedKeys.map(key => resultObject[key] || '');
-        const commaSeparatedValues = valuesArray.join(',');
-        const finalString = `[commaSeparatedValues]`;
-
-        // 3. Return the final string to Screaming Frog in a single column named 'data'.
-        return seoSpider.data(valuesArray);
+        return seoSpider.data(resultObject);
     }
 
-    return seoSpider.data('Data not found'); // Return empty if no data was found
+    // This case should ideally not be reached because of the fallback,
+    // but return an empty object just in case.
+    return seoSpider.data({});
 
 } catch (error) {
     return seoSpider.error(`Extraction failed: ${error.message}`);
