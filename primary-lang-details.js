@@ -1,103 +1,96 @@
-/**
- * The language to prioritize when searching for alternate links.
- * Change this value to your desired language code (e.g., 'en', 'de', 'sv').
- */
+// =================================================================
+// --- CONFIGURATION ---
+// =================================================================
+// Set your preferred language code here.
 const PREFERRED_LANGUAGE = 'fi';
 
-/**
- * Retrieves details about alternate language links, the current page, and the page title.
- * It prioritizes a specified language version for the primary path details.
- * If no alternate links are found, it falls back to using details from the canonical URL.
- *
- * @param {string} [preferredLang='fi'] - The language code to prioritize.
- * @returns {Promise<array>} A Promise that resolves to an array of values:
- *           - [0]: href (prioritizing preferred language, then first alternate, then canonical)
- *           - [1]: page_path (from the corresponding href)
- *           - [2]: current_page_language
- *           - [3]: languages_count
- *           - [4]: first_folder (from the corresponding href)
- *           - [5]: page_title
- */
-function getAlternateHrefDetails(preferredLang = 'fi') {
-  return new Promise((resolve, reject) => {
-    try {
-      if (typeof document === 'undefined' || typeof window === 'undefined') {
-        return reject(new Error('Not running in a browser environment'));
-      }
 
-      const page_title = document.title || "";
-      const alternateLinks = document.querySelectorAll('link[rel="alternate"]');
-      const languages_count = alternateLinks.length;
-      
-      let href_to_use = null;
-      let primary_page_path = null;
-      let primary_first_folder = null;
-      let current_page_language = "";
-
-      const canonicalLink = document.querySelector('link[rel="canonical"]');
-      const canonicalHref = canonicalLink ? canonicalLink.href : window.location.href;
-
-      if (languages_count === 0) {
-        // NEW: Fallback logic using canonical URL when no alternate links exist
-        href_to_use = canonicalHref;
-        current_page_language = document.documentElement.lang || "not-detected";
-      } else {
-        // Prioritize the preferred language
-        for (const link of alternateLinks) {
-          if (link.hreflang === preferredLang) {
-            href_to_use = link.href;
-            break;
-          }
-        }
-
-        // If preferred not found, use the first alternate link
-        if (!href_to_use) {
-          href_to_use = alternateLinks[0]?.href || null;
-        }
-
-        // Determine current page language from hreflang attributes
-        const normalizeUrl = (url) => url?.replace(/\/$/, '').toLowerCase();
-        const normalizedCanonical = normalizeUrl(canonicalLink ? canonicalLink.href : window.location.href);
-        for (const link of alternateLinks) {
-          if (normalizeUrl(link.href) === normalizedCanonical) {
-            current_page_language = link.hreflang;
-            break;
-          }
-        }
-      }
-
-      // If language still not found, fallback to HTML lang attribute
-      if (!current_page_language) {
-          current_page_language = document.documentElement.lang || "not-detected";
-      }
-
-      // Process the determined URL to extract path and folder
-      if (href_to_use) {
-        try {
-            const url = new URL(href_to_use);
-            primary_page_path = url.pathname;
-            primary_first_folder = url.pathname.split('/').filter(Boolean)[0] || "";
-        } catch (urlError) {
-          console.error('Invalid URL:', urlError);
-        }
-      }
-
-      resolve([
-        href_to_use,
-        primary_page_path,
-        current_page_language,
-        languages_count,
-        primary_first_folder,
-        page_title
-      ]);
-
-    } catch (error) {
-      reject(error);
+// =================================================================
+// --- TIER 1: Attempt to extract from the dataLayer ---
+// =================================================================
+function extractFromDataLayer() {
+    if (!window.dataLayer || !Array.isArray(window.dataLayer) || window.dataLayer.length === 0) {
+        return null;
     }
-  });
+    const combinedData = window.dataLayer.reduce((acc, obj) => (obj && typeof obj === 'object' ? {...acc, ...obj } : acc), {});
+    
+    if (combinedData.primary_url && combinedData.current_language) {
+        return {
+            source: 'dataLayer',
+            url: combinedData.primary_url || null,
+            path: combinedData.primary_path || null,
+            title: combinedData.primary_title || null,
+            language: combinedData.current_language || null,
+            translations: combinedData.amount_of_translations || null
+        };
+    }
+    return null;
 }
 
-// Execute the function with the configured preferred language
-return getAlternateHrefDetails(PREFERRED_LANGUAGE)
-    .then(data => seoSpider.data(data))
-    .catch(error => seoSpider.error(error));
+// =================================================================
+// --- TIER 2: Attempt to find a specific hreflang link ---
+// =================================================================
+function extractFromHreflang(lang) {
+    const link = document.querySelector(`link[rel="alternate"][hreflang="${lang}"]`);
+    const translationCount = document.querySelectorAll('link[rel="alternate"][hreflang]').length;
+    
+    if (link && link.href) {
+        const url = new URL(link.href);
+        return {
+            source: 'hreflang_fallback',
+            url: link.href,
+            path: url.pathname,
+            title: null,
+            language: lang,
+            translations: translationCount > 0 ? translationCount : 1
+        };
+    }
+    return null;
+}
+
+// =================================================================
+// --- TIER 3: Fallback to extracting from the current page's DOM ---
+// =================================================================
+function extractFromCurrentPage() {
+    const translationCount = document.querySelectorAll('link[rel="alternate"][hreflang]').length;
+    return {
+        source: 'dom_fallback',
+        url: window.location.href,
+        path: window.location.pathname,
+        title: document.title,
+        language: document.documentElement.lang || null,
+        translations: translationCount > 0 ? translationCount : 1
+    };
+}
+
+// =================================================================
+// --- MAIN CONTROLLER AND FORMATTER ---
+// =================================================================
+try {
+    let resultObject = null;
+
+    // 1. Find the data object using the fallback logic.
+    resultObject = extractFromDataLayer();
+    if (!resultObject) {
+        resultObject = extractFromHreflang(PREFERRED_LANGUAGE);
+    }
+    if (!resultObject) {
+        resultObject = extractFromCurrentPage();
+    }
+
+    // 2. Format the object into the desired string.
+    if (resultObject) {
+        const orderedKeys = ['source', 'url', 'path', 'title', 'language', 'translations'];
+        const valuesArray = orderedKeys.map(key => resultObject[key] || '');
+        const commaSeparatedValues = valuesArray.join(',');
+        const finalString = `[commaSeparatedValues]`;
+
+        // 3. Return the final string to Screaming Frog in a single column named 'data'.
+        return seoSpider.data(valuesArray);
+    }
+
+    return seoSpider.data('Data not found'); // Return empty if no data was found
+
+} catch (error) {
+    return seoSpider.error(`Extraction failed: ${error.message}`);
+}
