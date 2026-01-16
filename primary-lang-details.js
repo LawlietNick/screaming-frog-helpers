@@ -13,6 +13,7 @@ function extractFromDataLayer() {
         return null;
     }
     const combinedData = window.dataLayer.reduce((acc, obj) => (obj && typeof obj === 'object' ? {...acc, ...obj } : acc), {});
+    
     if (combinedData.primary_url && combinedData.current_language) {
         return {
             source: 'dataLayer',
@@ -36,11 +37,11 @@ function extractFromHreflang(lang) {
     if (link && link.href) {
         const url = new URL(link.href);
         let pageTitle = null;
-        
+
         // Find the canonical URL of the page
         const canonicalLink = document.querySelector('link[rel="canonical"]');
         const canonicalUrl = canonicalLink ? canonicalLink.href : null;
-        
+
         // If the hreflang URL matches the canonical URL, use the current page's title.
         if (canonicalUrl && link.href === canonicalUrl) {
             pageTitle = document.title;
@@ -50,7 +51,7 @@ function extractFromHreflang(lang) {
             source: 'hreflang_fallback',
             url: link.href,
             path: url.pathname,
-            title: null,
+            title: pageTitle,
             language: document.documentElement.lang || null,
             translations: translationCount > 0 ? translationCount : 1
         };
@@ -73,9 +74,8 @@ function extractFromCurrentPage() {
     };
 }
 
-
 // =================================================================
-// --- MAIN CONTROLLER ---
+// --- MAIN CONTROLLER AND FORMATTER ---
 // =================================================================
 try {
     let resultObject = null;
@@ -89,15 +89,16 @@ try {
         resultObject = extractFromCurrentPage();
     }
 
-    // 3. Return the object from the successful function directly.
-    // Screaming Frog will create a column for each key in the object.
+    // 2. Format the object into the desired string.
     if (resultObject) {
-        return seoSpider.data(resultObject);
+        const orderedKeys = ['source', 'url', 'path', 'title', 'language', 'translations'];
+        const valuesArray = orderedKeys.map(key => resultObject[key] || '');
+
+        // 3. Return the final string to Screaming Frog in a single column named 'data'.
+        return seoSpider.data(valuesArray);
     }
 
-    // This case should ideally not be reached because of the fallback,
-    // but return an empty object just in case.
-    return seoSpider.data({});
+    return seoSpider.data('Data not found'); // Return empty if no data was found
 
 } catch (error) {
     return seoSpider.error(`Extraction failed: ${error.message}`);
